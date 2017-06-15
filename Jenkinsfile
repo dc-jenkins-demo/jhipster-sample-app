@@ -3,10 +3,6 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        script {
-          checkout scm
-        }
-        
         stash(includes: '**', name: 'ws')
       }
     }

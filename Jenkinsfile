@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Build Backend') {
       steps {
-        sh './mvnw -B -DskipTests=true clean compile package'
+        echo 'sh ./mvnw -B -DskipTests=true package'
         stash(name: 'war', includes: 'target/**/*.war')
       }
     }
@@ -45,7 +45,7 @@ pipeline {
     }
     stage('Deploy to production') {
       steps {
-        input(message: 'Deploy to production?', ok: 'Fire zee missiles!')
+        input(message: 'Deploy to production?', ok: 'Go!')
         unstash 'war'
         echo 'Production deployed'
       }

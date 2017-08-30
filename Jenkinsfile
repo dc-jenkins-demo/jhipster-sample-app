@@ -6,14 +6,8 @@ pipeline {
     
   }
   stages {
-    stage('Checkout') {
-      steps {
-        stash(includes: '**', name: 'ws')
-      }
-    }
     stage('Build Backend') {
       steps {
-        unstash 'ws'
         sh './mvnw -B -DskipTests=true clean compile package'
         stash(name: 'war', includes: 'target/**/*.war')
       }
@@ -22,16 +16,12 @@ pipeline {
       steps {
         parallel(
           "Unit": {
-            unstash 'ws'
-            unstash 'war'
-            sh './mvnw -B test'
-            junit '**/surefire-reports/**/*.xml'
+            echo 'running: sh ./mvnw -B test'
+            echo 'running: junit **/surefire-reports/**/*.xml'
             
           },
           "Performance": {
-            unstash 'ws'
-            unstash 'war'
-            sh './mvnw -B gatling:execute'
+            echo 'running: sh ./mvnw -B gatling:execute'
             
           }
         )
@@ -39,28 +29,25 @@ pipeline {
     }
     stage('Test Frontend') {
       steps {
-        unstash 'ws'
-        sh 'yarn install'
-        sh 'yarn global add gulp-cli'
-        sh 'gulp test'
+        echo 'Running npm build'
       }
     }
     stage('Build Container') {
       steps {
-        unstash 'ws'
-        unstash 'war'
-        sh './mvnw -B docker:build'
+        echo 'Running container build'
       }
     }
-    stage('Deploy to Staging') {
+    stage('Deploy war to Staging') {
       steps {
-        echo 'Let\'s pretend a deployment is happening'
+        unstash 'war'
+        echo 'Deploying to a test server'
       }
     }
     stage('Deploy to production') {
       steps {
         input(message: 'Deploy to production?', ok: 'Fire zee missiles!')
-        echo 'Let\'s pretend a production deployment is happening'
+        unstash 'war'
+        echo 'Production deployed'
       }
     }
   }

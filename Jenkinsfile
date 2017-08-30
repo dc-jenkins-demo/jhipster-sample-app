@@ -9,7 +9,8 @@ pipeline {
     stage('Build Backend') {
       steps {
         echo 'sh ./mvnw -B -DskipTests=true package'
-        stash(name: 'war', includes: 'target/**/*.war')
+        sh 'touch build.war'
+        stash(name: 'war', includes: 'build.war')
       }
     }
     stage('Backend') {
